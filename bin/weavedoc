@@ -1,10 +1,10 @@
 #!/usr/bin/env perl
-# PODNAME: weave.pl
+# PODNAME: weavedoc
 
 =head1 SYNOPSIS
 
-    weave.pl [--license <license>] [--version <version>] [--author <author>] <file>
-    weave.pl -h|--help
+    weavedoc [--license <license>] [--version <version>] [--author <author>] <file>
+    weavedoc -h|--help
 
 =head1 DESCRIPTION
 
@@ -23,7 +23,7 @@ A path to a Perl file to weave.
 
 =head2 license
 
-    weave.pl --license Perl_5 Module.pm
+    weavedoc --license Perl_5 Module.pm
 
 The name of a license to declare in the resulting POD. Should be a valid
 subclass of L<Software::License>. Some examples are: C<Perl_5>,
@@ -32,13 +32,13 @@ provided in L<the documentation for Software::License|Software::License>.
 
 =head2 version
 
-    weave.pl --version 1.23 Module.pm
+    weavedoc --version 1.23 Module.pm
 
 The version of the input Perl file, to be used if necessary in the POD.
 
 =head2 author
 
-    weave.pl --author 'Doug Bell <doug@example.com>' Module.pm
+    weavedoc --author 'Doug Bell <doug@example.com>' Module.pm
 
 The author of the Perl file. May be specified multiple times for
 multiple authors. You can include an e-mail address in E<lt>E<gt>
@@ -46,7 +46,7 @@ brackets.
 
 =head1 CONFIGURATION
 
-C<weave.pl> expects a Pod::Weaver configuration file (C<weaver.ini>) in
+C<weavedoc> expects a Pod::Weaver configuration file (C<weaver.ini>) in
 the current directory.
 
 =head1 SEE ALSO
@@ -82,7 +82,16 @@ found in the current directory.
 
 =item *
 
+Search parent directories for C<weaver.ini>.
+
+=item *
+
 Determine the C<--version> automatically from the input code.
+
+=item *
+
+C<< -M <formatter_class> >> option to specify formatter class, like
+L<perldoc> has.
 
 =back
 
@@ -113,6 +122,7 @@ use PPI;
 use Pod::Elemental;
 use Encode;
 use Path::Tiny qw( cwd );
+use Pod::Text;
 
 __PACKAGE__->main( @ARGV ) unless caller;
 
@@ -230,7 +240,9 @@ sub _weave_module {
     my $pod_text = $weaved_doc->as_pod_string;
 
     #; say $pod_text;
-    return $pod_text;
+    open my $fh, '<', \$pod_text;
+    Pod::Text->new( name => $path )->parse_file( $fh );
+    return;
 }
 
 
